@@ -3,6 +3,17 @@ import urwid as u
 from modes.base_mode import BaseMode
 from typing import List
 
+class TherapyFrame(u.Frame):
+    def __init__(self, therapy_mode_instance, body, header=None, footer=None, focus_part='body'):
+         self.therapy_mode = therapy_mode_instance
+         super().__init__(body, header=header, footer=footer, focus_part=focus_part)
+
+    def mouse_event(self, size, event, button, col, row, focus):
+        if event == 'mouse press' and button == 1:
+             if self.therapy_mode:
+                  self.therapy_mode.focus_input()
+             return True
+        return super().mouse_event(size, event, button, col, row, focus)
 
 class TherapyMode(BaseMode):
     def __init__(self, app_manager):
@@ -12,6 +23,14 @@ class TherapyMode(BaseMode):
         self.styled_input_area = None
         super().__init__(
             app_manager, "Therapy Session", "Enter message | Ctrl+D to return to Menu"
+        )
+        base_frame = self.frame
+        self.frame = TherapyFrame(
+             self, # Pass the TherapyMode instance
+             body=base_frame.body,
+             header=base_frame.header,
+             footer=base_frame.footer,
+             focus_part='footer' # Keep initial focus on footer
         )
 
     def _create_body(self) -> u.Widget:
@@ -37,12 +56,18 @@ class TherapyMode(BaseMode):
         return [self.styled_input_area]
 
     def on_activate(self) -> None:
-        self.focus_input()
+        self.focus_input()        
         if self.chat_window and self.chat_window.body:
             try:
                 self.chat_window.set_focus(len(self.chat_window.body) - 1)
             except IndexError:
                 pass
+
+    def custom_mouse_event(self, size, event, button, col, row, focus):
+        if event == "mouse press":
+            self.focus_input()
+            return True
+        return super().mouse_event(size, event, button, col, row, focus)
 
     def _build_message_widgets(self) -> List[u.Widget]:
         message_widgets = []
@@ -68,6 +93,8 @@ class TherapyMode(BaseMode):
                 input_pile_widget = self.styled_input_area.original_widget
                 edit_widget_padding = input_pile_widget.contents[1][0]
                 input_pile_widget.set_focus(edit_widget_padding)
+                if self.app_manager and self.app_manager.loop:
+                    self.app_manager.loop.draw_screen()
             except (AttributeError, IndexError, KeyError, TypeError):
                 pass
 

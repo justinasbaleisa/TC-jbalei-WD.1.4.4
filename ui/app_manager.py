@@ -46,14 +46,6 @@ class AppManager:
         self.set_view(mode, frame)
         mode.on_activate()
 
-        match mode_name:
-            case "main_menu":
-                mode.update_description()
-            case "therapy":
-                mode.focus_input()
-            case "users":
-                pass
-
     def handle_input(self, key: str) -> str:
         processed_key = key
         mode_handled = False
