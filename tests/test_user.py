@@ -184,15 +184,15 @@ def test_is_valid_password_true(password, passcode):
 
 
 @pytest.mark.parametrize(
-    ("password", "passcode", "wrong_password", "wrong_passcode"),
+    ("password", "passcode", "wrong"),
     [
-        ("secure_password", "secure_passcode", "wrong", "wrong"),
-        ("mypassword123", "mysecretcode", "wrong", "wrong"),
-        ("pass", "code", "wrong", "wrong"),
+        ("secure_password", "secure_passcode", "wrong"),
+        ("mypassword123", "mysecretcode", "wrong"),
+        ("pass", "code", "wrong"),
     ],
 )
-def test_is_valid_password_false(password, passcode, wrong_password, wrong_passcode):
+def test_is_valid_password_false(password, passcode, wrong):
     hashed = User.hash_pass(password, passcode)
-    assert User.is_valid_password(wrong_password, passcode, hashed) is False
-    assert User.is_valid_password(password, wrong_passcode, hashed) is False
-    assert User.is_valid_password(wrong_password, wrong_passcode, hashed) is False
+    assert User.is_valid_password(wrong, passcode, hashed) is False
+    assert User.is_valid_password(password, wrong, hashed) is False
+    assert User.is_valid_password(wrong, wrong, hashed) is False
