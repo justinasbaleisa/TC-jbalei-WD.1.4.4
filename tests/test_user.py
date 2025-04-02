@@ -6,7 +6,7 @@ from models.user import User
 
 
 @pytest.mark.parametrize(
-    "id, name, email, hashed",
+    "id, name, email, hashed_password",
     [
         (
             uuid.uuid4(),
@@ -16,16 +16,16 @@ from models.user import User
         ),
     ],
 )
-def test_user_valid(id, name, email, hashed):
-    user = User(id, name, email, hashed)
+def test_user_valid(id, name, email, hashed_password):
+    user = User(id, name, email, hashed_password)
     assert user.name == name
     assert user.email == email
-    assert user.hashed == hashed
+    assert user.hashed_password == hashed_password
     assert isinstance(user.id, uuid.UUID)
 
 
 @pytest.mark.parametrize(
-    "id, name, email, hashed",
+    "id, name, email, hashed_password",
     [
         (
             1,
@@ -47,14 +47,14 @@ def test_user_valid(id, name, email, hashed):
         ),
     ],
 )
-def test_user_invalid_id(id, name, email, hashed):
+def test_user_invalid_id(id, name, email, hashed_password):
     with pytest.raises(ValueError) as e:
-        User(id, name, email, hashed)
+        User(id, name, email, hashed_password)
     assert "Invalid user id" in str(e.value)
 
 
 @pytest.mark.parametrize(
-    "id, name, email, hashed",
+    "id, name, email, hashed_password",
     [
         (
             uuid.uuid4(),
@@ -76,14 +76,14 @@ def test_user_invalid_id(id, name, email, hashed):
         ),
     ],
 )
-def test_user_invalid_name(id, name, email, hashed):
+def test_user_invalid_name(id, name, email, hashed_password):
     with pytest.raises(ValueError) as e:
-        User(id, name, email, hashed)
+        User(id, name, email, hashed_password)
     assert "Invalid user name" in str(e.value)
 
 
 @pytest.mark.parametrize(
-    "id, name, email, hashed",
+    "id, name, email, hashed_password",
     [
         (
             uuid.uuid4(),
@@ -111,9 +111,9 @@ def test_user_invalid_name(id, name, email, hashed):
         ),
     ],
 )
-def test_user_invalid_email(id, name, email, hashed):
+def test_user_invalid_email(id, name, email, hashed_password):
     with pytest.raises(ValueError) as e:
-        User(id, name, email, hashed)
+        User(id, name, email, hashed_password)
     assert "Invalid email" in str(e.value)
 
 
@@ -163,11 +163,11 @@ def test_is_valid_email_false(email):
         ("pass", "code"),
     ],
 )
-def test_hash_pass(password, passcode):
-    hashed = User.hash_pass(password, passcode)
-    assert isinstance(hashed, bytes)
-    assert len(hashed) > 0
-    assert bcrypt.checkpw(User.combine_pass(password, passcode), hashed)
+def test_hash_password(password, passcode):
+    hashed_password = User.hash_password(password, passcode)
+    assert isinstance(hashed_password, bytes)
+    assert len(hashed_password) > 0
+    assert bcrypt.checkpw(User.combine_pass(password, passcode), hashed_password)
 
 
 @pytest.mark.parametrize(
@@ -179,8 +179,8 @@ def test_hash_pass(password, passcode):
     ],
 )
 def test_is_valid_password_true(password, passcode):
-    hashed = User.hash_pass(password, passcode)
-    assert User.is_valid_password(password, passcode, hashed) is True
+    hashed_password = User.hash_password(password, passcode)
+    assert User.is_valid_password(password, passcode, hashed_password) is True
 
 
 @pytest.mark.parametrize(
@@ -192,7 +192,7 @@ def test_is_valid_password_true(password, passcode):
     ],
 )
 def test_is_valid_password_false(password, passcode, wrong):
-    hashed = User.hash_pass(password, passcode)
-    assert User.is_valid_password(wrong, passcode, hashed) is False
-    assert User.is_valid_password(password, wrong, hashed) is False
-    assert User.is_valid_password(wrong, wrong, hashed) is False
+    hashed_password = User.hash_password(password, passcode)
+    assert User.is_valid_password(wrong, passcode, hashed_password) is False
+    assert User.is_valid_password(password, wrong, hashed_password) is False
+    assert User.is_valid_password(wrong, wrong, hashed_password) is False

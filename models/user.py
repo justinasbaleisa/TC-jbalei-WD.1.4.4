@@ -9,7 +9,7 @@ class User:
     id: uuid.UUID = field(default_factory=lambda: uuid.uuid4())
     name: str = None
     email: str = None
-    hashed: bytes = None
+    hashed_password: bytes = None
 
     def __post_init__(self):
         self.validate()
@@ -36,10 +36,10 @@ class User:
                 f"does not match RegEx"
             )
 
-        if not isinstance(self.hashed, bytes):
+        if not isinstance(self.hashed_password, bytes):
             raise ValueError(
-                f"Invalid hashed '{self.hashed}' "
-                f"({type(self.hashed).__name__}) - "
+                f"Invalid hashed '{self.hashed_password}' "
+                f"({type(self.hashed_password).__name__}) - "
                 f"must be bytes"
             )
 
@@ -65,7 +65,7 @@ class User:
         return bcrypt.checkpw(combined, hashed)
 
     @staticmethod
-    def hash_pass(password: str, passcode: str) -> bytes:
+    def hash_password(password: str, passcode: str) -> bytes:
         combined = User.combine_pass(password, passcode)
         return bcrypt.hashpw(combined, bcrypt.gensalt())
 
