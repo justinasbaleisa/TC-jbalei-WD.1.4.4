@@ -1,7 +1,5 @@
 # Project specific
-README.md
 data/
-modes/users_mode.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
