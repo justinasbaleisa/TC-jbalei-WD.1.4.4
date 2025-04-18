@@ -1,19 +1,22 @@
 import urwid as u
 
 from modes.base_mode import BaseMode
-from typing import List
+
 
 class TherapyFrame(u.Frame):
-    def __init__(self, therapy_mode_instance, body, header=None, footer=None, focus_part='body'):
-         self.therapy_mode = therapy_mode_instance
-         super().__init__(body, header=header, footer=footer, focus_part=focus_part)
+    def __init__(
+        self, therapy_mode_instance, body, header=None, footer=None, focus_part="body"
+    ):
+        self.therapy_mode = therapy_mode_instance
+        super().__init__(body, header=header, footer=footer, focus_part=focus_part)
 
     def mouse_event(self, size, event, button, col, row, focus):
-        if event == 'mouse press' and button == 1:
-             if self.therapy_mode:
-                  self.therapy_mode.focus_input()
-             return True
+        if event == "mouse press" and button == 1:
+            if self.therapy_mode:
+                self.therapy_mode.focus_input()
+            return True
         return super().mouse_event(size, event, button, col, row, focus)
+
 
 class TherapyMode(BaseMode):
     def __init__(self, app_manager):
@@ -22,28 +25,28 @@ class TherapyMode(BaseMode):
         self.edit_box = None
         self.styled_input_area = None
         super().__init__(
-            app_manager, "Therapy Session", "Enter message | Ctrl+D to return to Menu"
+            app_manager,
+            "Therapy Session",
+            "Type message and press enter | Ctrl+D to return to main menu",
         )
         base_frame = self.frame
         self.frame = TherapyFrame(
-             self, # Pass the TherapyMode instance
-             body=base_frame.body,
-             header=base_frame.header,
-             footer=base_frame.footer,
-             focus_part='footer' # Keep initial focus on footer
+            self,  # Pass the TherapyMode instance
+            body=base_frame.body,
+            header=base_frame.header,
+            footer=base_frame.footer,
+            focus_part="footer",  # Keep initial focus on footer
         )
 
     def _create_body(self) -> u.Widget:
         initial_widgets = self._build_message_widgets()
         self.chat_window = u.ListBox(u.SimpleListWalker(initial_widgets))
-        padded_chat = u.Padding(
-            self.chat_window, left=1, right=1
-        )
+        padded_chat = u.Padding(self.chat_window, left=1, right=1)
         line_box = u.LineBox(padded_chat, title="Chat")
         styled_chat = u.AttrMap(line_box, "chat")
         return styled_chat
 
-    def _create_additional_footer_widgets(self) -> List[u.Widget]:
+    def _create_additional_footer_widgets(self) -> list[u.Widget]:
         self.edit_box = u.Edit("input > ")
         input_area_pile = u.Pile(
             [
@@ -56,7 +59,7 @@ class TherapyMode(BaseMode):
         return [self.styled_input_area]
 
     def on_activate(self) -> None:
-        self.focus_input()        
+        self.focus_input()
         if self.chat_window and self.chat_window.body:
             try:
                 self.chat_window.set_focus(len(self.chat_window.body) - 1)
@@ -69,7 +72,7 @@ class TherapyMode(BaseMode):
             return True
         return super().mouse_event(size, event, button, col, row, focus)
 
-    def _build_message_widgets(self) -> List[u.Widget]:
+    def _build_message_widgets(self) -> list[u.Widget]:
         message_widgets = []
         num_messages = len(self.messages)
 

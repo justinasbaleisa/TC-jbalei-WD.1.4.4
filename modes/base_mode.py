@@ -1,5 +1,6 @@
-import urwid as u
 from abc import ABC, abstractmethod
+import logging
+import urwid as u
 
 
 class BaseMode(ABC):
@@ -48,4 +49,15 @@ class BaseMode(ABC):
         return key
 
     def on_activate(self) -> None:
-        pass
+        active_user = self.app_manager.active_user
+        dynamic_header_text = self._header_text
+        if active_user and hasattr(active_user, 'name'):
+            dynamic_header_text += f"  ({active_user.name} <{active_user.email}>)"
+        header_map = getattr(self, "header_widget", None)
+        header_text_widget = getattr(header_map, 'original_widget', None) if header_map else None
+
+        if isinstance(header_text_widget, u.Text):
+             try:
+                  header_text_widget.set_text(f"\n{dynamic_header_text.strip()}\n")
+             except Exception as e:
+                  logging.error(f"Failed updating header text in {self.__class__.__name__}: {e}")
