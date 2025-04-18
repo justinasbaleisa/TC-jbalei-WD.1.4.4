@@ -1,8 +1,10 @@
 import logging
 import sys
-import traceback
 
+from dotenv import load_dotenv
 from ui.app_manager import AppManager
+
+load_dotenv("secrets.env")
 
 
 def main():
@@ -15,6 +17,9 @@ def main():
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         logging.getLogger("urwid").setLevel(logging.INFO)
+        logging.getLogger("openai").setLevel(logging.INFO)
+        logging.getLogger("httpcore").setLevel(logging.NOTSET)
+        logging.getLogger("httpx").setLevel(logging.INFO)
         logging.info("Application starting...")
 
         app = AppManager()

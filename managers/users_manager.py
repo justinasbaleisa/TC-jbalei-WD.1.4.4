@@ -24,31 +24,48 @@ class UsersManager:
         try:
             users_list_from_json = self.file_handler.read_json()
             if not isinstance(users_list_from_json, list):
-                 logging.error(f"User data file {self.file_path} did not contain a JSON list. Found {type(users_list_from_json)}. Cannot load users.")
-                 return
+                logging.error(
+                    f"User data file {self.file_path} did not contain a JSON list. Found {type(users_list_from_json)}. Cannot load users."
+                )
+                return
 
             for raw_user_data in users_list_from_json:
-                 try:
-                      if not isinstance(raw_user_data, dict):
-                           logging.warning(f"Skipping non-dictionary item: {raw_user_data}")
-                           continue
-                      user = User.from_dict(raw_user_data)
-                      if user.email in self._users_by_email:
-                           logging.warning(f"Skipping duplicate email loaded: {user.email}")
-                           continue
-                      self.users.append(user)
-                      self._users_by_email[user.email] = user
-                 except (KeyError, TypeError, ValueError) as e:
-                      logging.warning(f"Skipping user data due to data error: {e}. Data: {raw_user_data}")
-                 except Exception as e:
-                      logging.exception(f"Unexpected error processing user data item: {raw_user_data}")
+                try:
+                    if not isinstance(raw_user_data, dict):
+                        logging.warning(
+                            f"Skipping non-dictionary item: {raw_user_data}"
+                        )
+                        continue
+                    user = User.from_dict(raw_user_data)
+
+                    if user.email in self._users_by_email:
+                        logging.warning(
+                            f"Skipping duplicate email loaded: {user.email}"
+                        )
+                        continue
+                    self.users.append(user)
+                    self._users_by_email[user.email] = user
+                except (KeyError, TypeError, ValueError) as e:
+                    logging.warning(
+                        f"Skipping user data due to data error: {e}. Data: {raw_user_data}"
+                    )
+                except Exception as e:
+                    logging.exception(
+                        f"Unexpected error processing user data item: {raw_user_data}"
+                    )
 
         except FileNotFoundError:
-            logging.warning(f"User data file not found at {self.file_path}. Starting with no users.")
+            logging.warning(
+                f"User data file not found at {self.file_path}. Starting with no users."
+            )
         except json.JSONDecodeError:
-            logging.exception(f"Failed to decode JSON from {self.file_path}. File may be corrupt. Starting with no users.")
+            logging.exception(
+                f"Failed to decode JSON from {self.file_path}. File may be corrupt. Starting with no users."
+            )
         except (IOError, OSError) as e:
-            logging.exception(f"OS error reading user file {self.file_path}. Cannot load users.")
+            logging.exception(
+                f"OS error reading user file {self.file_path}. Cannot load users."
+            )
             # raise e
         except Exception as e:
             logging.exception("An unexpected error occurred during user loading.")
@@ -96,15 +113,11 @@ class UsersManager:
     def edit_user_pass(
         self,
         email: str,
-        # old_password: str,
-        # old_passcode: str,
+        # old_password: str,  # old_password and old_passcode check omitted,
+        # old_passcode: str,  # as ProfileMode is accessible only after User is logged in
         new_password: str,
         new_passcode: str,
     ) -> None:
-        '''
-            old_password and old_passcode check omitted,
-            as ProfileMode is accessible after User is logged in
-        '''
         if user := self.get_user_by_email(email):
             logging.info(f"changing user passes...")
             # if user.is_valid_password(old_password, old_passcode, user.hashed_password):

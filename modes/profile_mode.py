@@ -1,5 +1,4 @@
 import logging
-import time
 import urwid as u
 
 from managers.exceptions import (
@@ -10,6 +9,8 @@ from managers.exceptions import (
 
 from models.user import User
 from modes.base_mode import BaseMode
+
+from ui.app_modes import AppModes
 
 
 class ProfileMode(BaseMode):
@@ -148,8 +149,9 @@ class ProfileMode(BaseMode):
 
     def handle_save(self, _button):
         user = self.app_manager.active_user
-        if not user: return
-        
+        if not user:
+            return
+
         name = self.name_field.get_edit_text()
         email = self.email_field.get_edit_text()
         password = self.password_field.get_edit_text()
@@ -159,31 +161,33 @@ class ProfileMode(BaseMode):
             self.status_message.set_text("Please enter name.")
             self.form.focus_position = 0
             return
-        
+
         if not email:
             self.status_message.set_text("Please enter email.")
             self.form.focus_position = 2
             return
-        
+
         if not User.is_valid_email(email):
             self.status_message.set_text(f"Invalid e-mail format.")
             self.form.focus_position = 2
             return
-        
+
         pass_changed = bool(password and passcode)
         if bool(password or passcode) and not pass_changed:
-            self.status_message.set_text("Please enter both, password and passcode, to change.")
+            self.status_message.set_text(
+                "Please enter both, password and passcode, to change."
+            )
             self.form.focus_position = 4
             return
-        
+
         name_changed = user.name != name
         email_changed = user.email != email
-        
+
         if not name_changed and not email_changed and not pass_changed:
             self.delayed_status_message(2, "No changes detected to be saved.")
             logging.info("No changes detected to be saved.")
             return
-        
+
         try:
 
             if name_changed:
@@ -213,7 +217,9 @@ class ProfileMode(BaseMode):
             self.form.focus_position = 0
 
         except (IOError, OSError, TypeError) as e:
-            logging.exception(f"Critical error saving profile changes after in-memory update: {e}.")
+            logging.exception(
+                f"Critical error saving profile changes after in-memory update: {e}."
+            )
             self.status_message.set_text(f"Critical: changes failed to save!")
             self.form.focus_position = 0
 
@@ -228,28 +234,33 @@ class ProfileMode(BaseMode):
 
     def handle_delete(self, _button):
         user = self.app_manager.active_user
-        if not user: return
-        
+        if not user:
+            return
+
         password = self.password_field.get_edit_text()
         passcode = self.passcode_field.get_edit_text()
         if not password or not passcode:
-            self.status_message.set_text("Please enter both, password and passcode, to delete.")
+            self.status_message.set_text(
+                "Please enter both, password and passcode, to delete."
+            )
             self.form.focus_position = 4
             return
-        
+
         name = self.name_field.get_edit_text()
         email = self.email_field.get_edit_text()
         if email != user.email or name != user.name:
-            self.status_message.set_text("Profile changes has not been saved before deletion.")
+            self.status_message.set_text(
+                "Profile changes has not been saved before deletion."
+            )
             self.form.focus_position = 0
             return
-        
+
         try:
             self.users_manager.authenticate_user(user.email, password, passcode)
             self.app_manager.active_user = None
             self.users_manager.delete_user(user.email)
             self.form.focus_position = 0
-            self.app_manager.show("login")
+            self.app_manager.show(AppModes.LOGIN)
 
         except InvalidPasswordError as e:
             self.status_message.set_text(str(e))
@@ -263,10 +274,12 @@ class ProfileMode(BaseMode):
             self.form.focus_position = 2
 
         except (IOError, OSError, TypeError) as e:
-            logging.exception(f"Critical error saving profile changes after in-memory update: {e}.")
+            logging.exception(
+                f"Critical error saving profile changes after in-memory update: {e}."
+            )
             self.status_message.set_text(f"Critical: changes failed to save!")
             self.form.focus_position = 0
-            
+
         except Exception as e:
             logging.exception(
                 f"An unexpected error occurred during profile deletion: {e}."
@@ -280,23 +293,22 @@ class ProfileMode(BaseMode):
         self.status_message.set_text(message)
 
         loop = self.app_manager.loop
-        if not loop: return
+        if not loop:
+            return
 
         if self._status_alarm_handle:
             loop.remove_alarm(self._status_alarm_handle)
 
-        self._status_alarm_handle = loop.set_alarm_in(
-            delay,
-            self.clear_status_message
-        )
+        self._status_alarm_handle = loop.set_alarm_in(delay, self.clear_status_message)
 
     def clear_status_message(self, loop=None, user_data=None) -> None:
         self.status_message.set_text("")
         self._status_alarm_handle = None
-    
+
     def load_active_user_data(self) -> None:
         user = self.app_manager.active_user
-        if not user: return
+        if not user:
+            return
 
         self.name_field.set_edit_text(user.name)
         self.email_field.set_edit_text(user.email)
@@ -311,6 +323,6 @@ class ProfileMode(BaseMode):
     def handle_input(self, key: str) -> str | None:
         if key == "ctrl d":
             self.load_active_user_data()
-            self.app_manager.show("main_menu")
+            self.app_manager.show(AppModes.MENU)
             return None
         return key

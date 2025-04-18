@@ -6,6 +6,8 @@ from managers.exceptions import UserAlreadyExistsError
 from models.user import User
 from modes.base_mode import BaseMode
 
+from ui.app_modes import AppModes
+
 
 class RegisterMode(BaseMode):
 
@@ -16,7 +18,7 @@ class RegisterMode(BaseMode):
 
         super().__init__(
             app_manager,
-            "Register (create new user)",
+            "Register (create new user)f",
             "Enter name, e-mail, password and passcode to register, use Arrows to navigate | Ctrl + D to return to login",
         )
 
@@ -159,7 +161,7 @@ class RegisterMode(BaseMode):
                         f"User has been registered: {new_user.name} <{new_user.email}> ({new_user.id})."
                     )
                     self.app_manager.active_user = new_user
-                    self.app_manager.show("main_menu")
+                    self.app_manager.show(AppModes.MENU)
             except UserAlreadyExistsError as e:
                 self.status_message.set_text(str(e))
                 self.name_field.set_edit_text("")
@@ -187,6 +189,6 @@ class RegisterMode(BaseMode):
 
     def handle_input(self, key: str) -> str | None:
         if key == "ctrl d":
-            self.app_manager.show("login")
+            self.app_manager.show(AppModes.LOGIN)
             return None
         return key

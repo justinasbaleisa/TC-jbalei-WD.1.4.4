@@ -1,5 +1,6 @@
 import urwid as u
 
+
 # Custom icon that doesn't show a cursor.
 class NoCursorSelectableIcon(u.SelectableIcon):
     def __init__(self, text, cursor_position=0):
@@ -7,6 +8,7 @@ class NoCursorSelectableIcon(u.SelectableIcon):
 
     def get_cursor_coords(self, size):
         return None
+
 
 # Custom button
 class PlainButton(u.Button):
@@ -26,8 +28,8 @@ class PlainButton(u.Button):
         self._invalidate()
 
     def mouse_event(self, size, event, button, col, row, focus):
-        if event == 'mouse press' and button == 1:
-            self._emit('click')
+        if event == "mouse press" and button == 1:
+            self._emit("click")
             return True
         return super().mouse_event(size, event, button, col, row, focus)
 
@@ -46,10 +48,13 @@ class MenuListBox(u.ListBox):
 
         # If a movement key was pressed, focus might have changed.
         # Call the callback directly *after* the parent handled the key.
-        if key in ("up", "down", "page up", "page down", "home", "end") and self.update_callback:
+        if (
+            key in ("up", "down", "page up", "page down", "home", "end")
+            and self.update_callback
+        ):
             # Check if focus actually changed to avoid redundant calls
-             if self.focus_position != old_focus_pos:
-                self.update_callback() # Call directly
+            if self.focus_position != old_focus_pos:
+                self.update_callback()  # Call directly
 
         return result
 
@@ -60,9 +65,9 @@ class MenuListBox(u.ListBox):
         result = super().mouse_event(size, event, button, col, row, focus)
 
         # If it was a click that potentially changed focus, call the callback.
-        if event == 'mouse press' and button == 1 and self.update_callback:
-             # Check if focus actually changed
-             if self.focus_position != old_focus_pos:
-                self.update_callback() # Call directly
+        if event == "mouse press" and button == 1 and self.update_callback:
+            # Check if focus actually changed
+            if self.focus_position != old_focus_pos:
+                self.update_callback()  # Call directly
 
         return result

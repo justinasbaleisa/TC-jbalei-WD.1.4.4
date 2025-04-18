@@ -5,6 +5,8 @@ from managers.exceptions import UserNotFoundError, InvalidPasswordError
 from models.user import User
 from modes.base_mode import BaseMode
 
+from ui.app_modes import AppModes
+
 
 class LoginMode(BaseMode):
 
@@ -150,7 +152,7 @@ class LoginMode(BaseMode):
                     )
                     self.app_manager.active_user = user
                     self.form.focus_position = 0
-                    self.app_manager.show("main_menu")
+                    self.app_manager.show(AppModes.MENU)
             except UserNotFoundError as e:
                 self.status_message.set_text(str(e))
                 self.email_field.set_edit_text("")
@@ -178,4 +180,4 @@ class LoginMode(BaseMode):
 
     def handle_register(self, _button):
         self.form.focus_position = 0
-        self.app_manager.show("register")
+        self.app_manager.show(AppModes.REGISTER)

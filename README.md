@@ -1,4 +1,4 @@
-# TC WD 1.4.4 Capstone Project: {Idea Name Here}
+# TC WD 1.4.4 Capstone Project: AI therapy CLI
 
 ## Description
 

@@ -12,6 +12,7 @@ class User:
     name: str = None
     email: str = None
     hashed_password: bytes = None
+    chat_history: list[tuple[str, str]] = field(default_factory=list)
 
     def __post_init__(self):
         self.validate()
@@ -52,6 +53,20 @@ class User:
                 f"Invalid hashed '{self.hashed_password}' "
                 f"({type(self.hashed_password).__name__}) - "
                 f"must be bytes"
+            )
+
+        if not isinstance(self.chat_history, list):
+            raise ValueError(
+                f"Invalid history '{self.chat_history}' "
+                f"({type(self.chat_history).__name__}) - "
+                f"must be list"
+            )
+        for item in self.chat_history:
+            if not (isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], str) and isinstance(item[1], str)):
+                raise ValueError(
+                f"Invalid history item '{item}' "
+                f"({type(item).__name__}) - "
+                f"must be (str, str) tuples"
             )
 
         return True
@@ -119,17 +134,31 @@ class User:
                 logging.error(f"Invalid UUID format in stored data: {user_id_str}")
                 raise ValueError(f"Invalid UUID format in stored data: {user_id_str}") from None
 
+        loaded_history = data.get("chat_history", "MISSING") # Use default marker
+
+        if loaded_history == "MISSING" or not isinstance(loaded_history, list):
+            logging.warning(f"Invalid/missing chat_history format for user {data.get('id')}, resetting.")
+            loaded_history = []  # Optionaly exit
+        else:
+            loaded_history = [tuple(item) if isinstance(item, list) and len(item) == 2 else item for item in loaded_history]
+            if not all(isinstance(item, tuple) and len(item) == 2 for item in loaded_history):
+                logging.warning(f"Invalid item structure in chat_history for user {data.get('id')}, resetting.")
+                loaded_history = []  # Optionaly exit
+
         name = data.get("name")
         email = data.get("email")
         try:
-            return User(
+            user_instance = User(
                 id=user_id,
                 name=name,
                 email=email,
                 hashed_password=hashed_bytes,
+                chat_history=loaded_history,
             )
+            return user_instance
+        
         except ValueError as e:
-            logging.warning(f"Error creating User object from dict (validation failed) - Name: {name}, Email: {email}. Error: {e}")
+            logging.warning(f"Error creating User object from dict (validation failed) - Data: {data}. Error: {e}")
             raise
 
     def to_dict(self) -> dict:
@@ -142,5 +171,6 @@ class User:
             "name": self.name,
             "email": self.email,
             "hashed_password": hashed_str,
+            "chat_history": self.chat_history,
         }
         return data
