@@ -29,7 +29,7 @@ class AppManager:
 
         self.palette = [
             ("inactive", "dark gray", "default"),
-            ("focus", "light gray", "dark red", "standout"),
+            ("focus", "white", "dark red", "standout"),
             ("header", "white", "dark blue"),
             ("sub_header", "white", "default"),
             ("chat", "dark gray", "default"),

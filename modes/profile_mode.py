@@ -23,7 +23,7 @@ class ProfileMode(BaseMode):
 
         super().__init__(
             app_manager,
-            "Profile (edit)",
+            "Profile",
             "Edit name, e-mail, password, passcode, and Save, use Arrows to navigate | Ctrl + D to return to menu",
         )
 
@@ -100,7 +100,7 @@ class ProfileMode(BaseMode):
         delete_row = u.Columns(
             [
                 ("weight", 1, u.AttrMap(u.Text(""), "label")),
-                ("weight", 4, u.AttrMap(delete_button, "button")),
+                ("weight", 4, u.AttrMap(delete_button, "focus")),
             ],
             dividechars=1,
         )

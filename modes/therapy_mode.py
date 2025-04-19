@@ -75,7 +75,9 @@ class TherapyMode(BaseMode):
             history_obj = user.chat_history
             if history_obj:
                 self.messages = history_obj.copy()
-                self.messages.append(("System", f"Continuing previous chat session from here..."))
+                self.messages.append(
+                    ("System", f"Continuing previous chat session from here...")
+                )
             else:
                 self.messages = [("System", "Chat session started...")]
         else:
@@ -97,9 +99,7 @@ class TherapyMode(BaseMode):
                     list_walker.extend(message_widgets)
                     if message_widgets:
                         try:
-                            self.chat_window.set_focus(
-                                len(list_walker) - 1
-                            )
+                            self.chat_window.set_focus(len(list_walker) - 1)
                         except IndexError:
                             pass
                         except Exception as focus_err:
@@ -207,9 +207,9 @@ class TherapyMode(BaseMode):
             list_walker.append(new_widget)
 
             new_focus_index = len(list_walker) - 1
-            self.chat_window._invalidate()  # Mark for recalculation
+            self.chat_window._invalidate()
             self.chat_window.set_focus(new_focus_index)
-            self.chat_window.set_focus_valign("bottom")  # Ensure visibility
+            self.chat_window.set_focus_valign("bottom")
 
             if self.app_manager and self.app_manager.loop:
                 self.app_manager.loop.draw_screen()
@@ -241,13 +241,10 @@ class TherapyMode(BaseMode):
             if self.edit_box:
                 message_body = self.edit_box.get_edit_text().strip()
                 if message_body:
-                    
+
                     try:
-                        self.update_chat(
-                            "You", message_body
-                        )  # Appends to self.messages
+                        self.update_chat("You", message_body)
                         self.edit_box.set_edit_text("")
-                        # Log state BEFORE API call
 
                         ai_response = self.ai_manager.get_response(self.messages)
                         self.update_chat("AI", ai_response)
